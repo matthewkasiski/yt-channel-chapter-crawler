@@ -1,4 +1,12 @@
-# ippsec.github.io
+# yt-channel-chapter-crawler
+
+## TODO
+- [] Remove website elements
+- [] Remove non youtube integrations
+- [] Refactor `-g [put your api key here]]` to OS environment variable
+- [] Add formatter, linter, unit tests
+- [] Enhance for live video streams (VODs)
+- [] Refactor as pip package
 
 ## Search Utility
 
