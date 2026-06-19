@@ -26,8 +26,8 @@ def parse_timestamp(line: str):
     else:
         return None
 
-    rest = line[m.end() :].strip()
-    return hours, minutes, seconds, rest
+    timestamp_description = line[m.end() :].strip()
+    return hours, minutes, seconds, timestamp_description
 
 
 def run(channel_id: str, api_key: str, output_file: str):
