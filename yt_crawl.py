@@ -112,11 +112,11 @@ def GetVideosInChannel(api_key, channel_id):
         videos = json.loads(r.text)
         next_page_token = videos.get("nextPageToken")
         for video in videos.get("items"):
-            vId = video.get("snippet").get("resourceId").get("videoId")
+            vid = video.get("snippet").get("resourceId").get("videoId")
             date = video.get("snippet").get("publishedAt")
             title = video.get("snippet").get("title")
             description = video.get("snippet").get("description")
-            output.append([date, vId, title, description])
+            output.append([date, vid, title, description])
     return output
 
 
@@ -183,7 +183,7 @@ def cli():
     parser.add_argument(
         "-a",
         "--yt_api_key",
-        help="Your API key from the Youtube API. Optional set environment variable YT_CRAWL_YT_API_KEY",
+        help="Your API key from the Google Developer Console ( e.g. https://console.developers.google.com/apis/credentials ). Optional set environment variable YT_CRAWL_YT_API_KEY",
         default=os.getenv("YT_CRAWL_YT_API_KEY"),
         required=False,
     )
