@@ -124,14 +124,15 @@ def run(channel_id, api_key, datasetOutputLocation):
     videos = []
     tags = {}
 
-    print("Grabbing video list")
+    logger.info("Gathering uploaded videos and live streams")
     output = GetVideosInChannel(api_key=api_key, channel_id=channel_id)
-    print("Sorting data")
+
+    logger.info("Processing video descriptions")
     for video in output:
         tag = ""
         description = video[3].split("\n")
         title = video[2]
-        print(title)
+        logger.info("Processing video: %r", title)
         if title in tags.keys():
             tag = tags[title]
         for line in description:
@@ -140,6 +141,7 @@ def run(channel_id, api_key, datasetOutputLocation):
                 logger.debug("Skipped line (no time prefix): %r", line)
                 continue
 
+            logger.debug("Processing timestamp for: %r", line)
             h, mnt, sec = m.groups()
             hours = int(h) if h else 0
             minutes = int(mnt)
@@ -160,11 +162,13 @@ def run(channel_id, api_key, datasetOutputLocation):
 
             videos.append(entry)
 
-    print("Serializing dataset")
+    logger.info("Serializing data to JSON format")
     dataset = json.dumps(videos)
-    print("Writing Dataset dataset...")
+
+    logger.info("Writing dataset...")
     with open(datasetOutputLocation, "w") as ds:
         ds.write(dataset)
+    logger.info("Dataset written to %s", datasetOutputLocation)
 
 
 def cli():
