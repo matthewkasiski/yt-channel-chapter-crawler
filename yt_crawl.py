@@ -57,11 +57,7 @@ class SearchEntry:
         }
 
 
-# channel_id = "UCa6eh7gCkpPo5XXUDfygQQA"   # @ippsec
-channel_id = "UCg6gPGh8HU2U01vaFCAsvmQ"  # @ChrisTitusTech
-
-
-def GetUploadChannel(api_key):
+def GetUploadChannel(api_key, channel_id):
     # YouTube API will only return a list of videos in a playlist, not channel.
     # This will get the playlist that contains all videos.
     data = {"id": channel_id, "key": api_key, "part": "contentDetails"}
@@ -77,13 +73,13 @@ def GetUploadChannel(api_key):
     return upload_id
 
 
-def GetTotalVideosInChannel(api_key):
+def GetTotalVideosInChannel(api_key, channel_id):
     # Get the total number of videos, so our playlist crawler knows how many videos to grab.
     # Probably is not needed, had created this before investigating how YouTube returns pages
     # in a query.
     data = {
         "key": api_key,
-        "playlistId": GetUploadChannel(api_key),
+        "playlistId": GetUploadChannel(api_key=api_key, channel_id=channel_id),
         "part": "snippet",
         "maxResults": "2",
     }
@@ -93,20 +89,20 @@ def GetTotalVideosInChannel(api_key):
     return total_videos
 
 
-def GetVideosInChannel(api_key):
+def GetVideosInChannel(api_key, channel_id):
     # Gets all the videos in a playlist, hardcoded to the Uploaded Playlist
     # https://www.googleapis.com/youtube/v3/playlistItems?playlistId={"uploads" Id}&key={API key}&part=snippet&maxResults=50
     output = []
     next_page_token = ""
     page = 1
-    total_videos = GetTotalVideosInChannel(api_key)
+    total_videos = GetTotalVideosInChannel(api_key=api_key, channel_id=channel_id)
     # This logic probably can be replaced by doing checks against the nextPageToken.
     while total_videos > 0:
         page += 1
         total_videos = total_videos - 50
         data = {
             "key": api_key,
-            "playlistId": GetUploadChannel(api_key),
+            "playlistId": GetUploadChannel(api_key=api_key, channel_id=channel_id),
             "part": "snippet",
             "maxResults": "50",
         }
@@ -129,7 +125,7 @@ def run(channel_id, api_key, datasetOutputLocation):
     tags = {}
 
     print("Grabbing video list")
-    output = GetVideosInChannel(api_key)
+    output = GetVideosInChannel(api_key=api_key, channel_id=channel_id)
     print("Sorting data")
     for video in output:
         tag = ""
