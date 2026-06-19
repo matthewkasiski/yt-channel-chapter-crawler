@@ -9,3 +9,31 @@ exclude = '''
   | dist
 )/
 '''
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yt-crawl"
+version = "0.1.0"
+description = "Crawl YouTube channel descriptions and extract timestamped entries"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["requests"]
+
+[project.scripts]
+yt-crawl = "yt_crawl.cli:cli"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "pytest",
+]
+
