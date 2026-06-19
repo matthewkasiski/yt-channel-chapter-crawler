@@ -1,38 +1,54 @@
+#!/usr/bin/env python3
+
+import os
 import requests
 import re
 import json
 import argparse
+import logging
 
-# import pdb, jsontree # When Debugging
+logging.basicConfig(
+    level=logging.INFO,  # or INFO, WARNING, ERROR
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
+
+TIMESTAMP_RE = re.compile(r"^\s*(?:(\d{1,2}):)?(\d{2}):(\d{2})")
+API_URL = "https://www.googleapis.com/youtube/v3"
 
 
 class SearchEntry:
     # JSON serializey stuff
     class Timestamp:
+        hours = 0
         minutes = 0
         seconds = 1
 
-    machine = ""
+    videoTitle = ""
     videoId = ""
     timestamp = Timestamp()
     tag = ""
     line = ""
 
-    def __init__(self, machine, video, minutes, seconds, tag, line):
+    def __init__(self, videoTitle, video, hours, minutes, seconds, tag, line):
         (
-            self.machine,
+            self.videoTitle,
             self.videoId,
+            self.timestamp.hours,
             self.timestamp.minutes,
             self.timestamp.seconds,
             self.tag,
             self.line,
-        ) = (machine, video, minutes, seconds, tag, line)
+        ) = (videoTitle, video, hours, minutes, seconds, tag, line)
 
     def AsJsonSerializable(self):
         return {
-            "machine": self.machine,
+            "videoTitle": self.videoTitle,
             "videoId": self.videoId,
             "timestamp": {
+                "hours": int(self.timestamp.hours),
                 "minutes": int(self.timestamp.minutes),
                 "seconds": int(self.timestamp.seconds),
             },
@@ -41,44 +57,15 @@ class SearchEntry:
         }
 
 
-class AcademyEntry:
-    # JSON serializey stuff
-    machine = ""
-    academy = ""
-    line = ""
-    tag = ""
-
-    def __init__(self, machine, academy, line):
-        self.machine, self.academy, self.line = machine, academy, line
-
-    def AsJsonSerializable(self):
-        return {
-            "machine": self.machine,
-            "academy": self.academy,
-            "line": self.line,
-            "tag": self.tag,
-        }
-
-
-api_url = "https://www.googleapis.com/youtube/v3/"
-channel_id = "UCa6eh7gCkpPo5XXUDfygQQA"
-playlists = [
-    ["linux easy", "PLidcsTyj9JXJfpkDrttTdk1MNT6CDwVZF"],
-    ["linux medium", "PLidcsTyj9JXJKC2u55YVa5aMDBRXsawhr"],
-    ["linux hard", "PLidcsTyj9JXJlmHwZScT3He3rO4ni-xwH"],
-    ["linux insane", "PLidcsTyj9JXLI9mAR4MPiL19hq5lpaYNd"],
-    ["windows easy", "PLidcsTyj9JXL4Jv6u9qi8TcUgsNoKKHNn"],
-    ["windows medium", "PLidcsTyj9JXI9E9dT1jgXxvTOi7Pq_2c5"],
-    ["windows hard", "PLidcsTyj9JXK2sdXaK5He4-Z8G0Ra-4u2"],
-    ["windows insane", "PLidcsTyj9JXJSn8KxSr_-9eKEwxJJtf_x"],
-]
+# channel_id = "UCa6eh7gCkpPo5XXUDfygQQA"   # @ippsec
+channel_id = "UCg6gPGh8HU2U01vaFCAsvmQ"  # @ChrisTitusTech
 
 
 def GetUploadChannel(api_key):
     # YouTube API will only return a list of videos in a playlist, not channel.
     # This will get the playlist that contains all videos.
     data = {"id": channel_id, "key": api_key, "part": "contentDetails"}
-    r = requests.get(f"{api_url}channels", params=data)
+    r = requests.get(f"{API_URL}/channels", params=data)
     response = json.loads(r.text)
     # ToDo: There's gotta be a better way to do this...
     upload_id = (
@@ -100,7 +87,7 @@ def GetTotalVideosInChannel(api_key):
         "part": "snippet",
         "maxResults": "2",
     }
-    r = requests.get(f"{api_url}playlistItems", params=data)
+    r = requests.get(f"{API_URL}/playlistItems", params=data)
     response = json.loads(r.text)
     total_videos = response.get("pageInfo").get("totalResults")
     return total_videos
@@ -125,7 +112,7 @@ def GetVideosInChannel(api_key):
         }
         if next_page_token:
             data.update({"pageToken": next_page_token})
-        r = requests.get(f"{api_url}playlistItems", params=data)
+        r = requests.get(f"{API_URL}/playlistItems", params=data)
         videos = json.loads(r.text)
         next_page_token = videos.get("nextPageToken")
         for video in videos.get("items"):
@@ -137,69 +124,9 @@ def GetVideosInChannel(api_key):
     return output
 
 
-def GetVideosInPlaylist(api_key, playlist):
-    # Get the total number of videos, so our playlist crawler knows how many videos to grab.
-    # Probably is not needed, had created this before investigating how YouTube returns pages
-    # in a query.
+def run(channel_id, api_key, datasetOutputLocation):
     videos = []
-    data = {
-        "key": api_key,
-        "playlistId": playlist,
-        "part": "snippet",
-        "maxResults": "50",
-    }
-    print(f"{api_url}playlistItems")
-    print(data)
-    r = requests.get(f"{api_url}playlistItems", params=data)
-    response = json.loads(r.text)
-    for video in response["items"]:
-        title = video["snippet"]["title"]
-        videos.append(title)
-    old_token = 0
-    while "nextPageToken" in response.keys():
-        if response["nextPageToken"] == old_token:
-            break
-        data = {
-            "key": api_key,
-            "playlistId": playlist,
-            "part": "snippet",
-            "maxResults": "50",
-            "nextPageToken": response["nextPageToken"],
-        }
-        r = requests.get(f"{api_url}playlistItems", params=data)
-        response = json.loads(r.text)
-        for video in response["items"]:
-            title = video["snippet"]["title"]
-            videos.append(title)
-        old_token = response["nextPageToken"]
-
-    total_videos = response.get("pageInfo").get("totalResults")
-    pages = total_videos // 50
-    return videos
-
-
-def parseAcademy():
-    output = []
-    for line in open("academy.csv").readlines():
-        course, course_id, description = line.split(";")
-        entry = AcademyEntry(course, course_id, description).AsJsonSerializable()
-        output.append(entry)
-    return output
-
-
-def run(api_key, gitCommit, datasetOutputLocation="dataset.json"):
-    videos = []
-    print("Parsing Academy Courses")
-    output = parseAcademy()
-    for x in output:
-        videos.append(x)
-
-    print("Done Parsing Academy Courses")
     tags = {}
-    for i in playlists:
-        for v in GetVideosInPlaylist(api_key, i[1]):
-            print(i[0])
-            tags[v] = i[0]
 
     print("Grabbing video list")
     output = GetVideosInChannel(api_key)
@@ -212,30 +139,30 @@ def run(api_key, gitCommit, datasetOutputLocation="dataset.json"):
         if title in tags.keys():
             tag = tags[title]
         for line in description:
-            if line != "":
-                if not re.search("^\w[\d]*:[\d]", line):
-                    line = "00:01 - " + line
+            m = TIMESTAMP_RE.match(line)
+            if not m:
+                logger.debug("Skipped line (no time prefix): %r", line)
+                continue
 
-                temp = line.split("-")
+            h, mnt, sec = m.groups()
+            hours = int(h) if h else 0
+            minutes = int(mnt)
+            seconds = int(sec)
+            newline = line[m.end() :].strip()
 
-                timestamp = temp[0].strip().split(":")
+            logger.debug(
+                "Parsed time %02d:%02d:%02d from line: %r",
+                hours,
+                minutes,
+                seconds,
+                line,
+            )
 
-                seconds = timestamp[-1]
-                hours = 0
-                try:
-                    hours = int(timestamp[-3])
-                except:
-                    pass
-                minutes = int(timestamp[-2]) + int(hours * 60)
+            entry = SearchEntry(
+                title, video[1], hours, minutes, seconds, tag, newline
+            ).AsJsonSerializable()
 
-                newline = "-".join(temp[1::])
-
-                entry = SearchEntry(
-                    title, video[1], minutes, seconds, tag, newline
-                ).AsJsonSerializable()
-
-                videos.append(entry)
-                # print(f'{title} | {video[1]} ^ {line}')
+            videos.append(entry)
 
     print("Serializing dataset")
     dataset = json.dumps(videos)
@@ -243,36 +170,36 @@ def run(api_key, gitCommit, datasetOutputLocation="dataset.json"):
     with open(datasetOutputLocation, "w") as ds:
         ds.write(dataset)
 
-    if gitCommit:
-        gitDescription = "Updated dataset"
-        print(f"Commiting to git, with commit description {gitDescription}")
-        from subprocess import call
-    #        call(["git", "commit", "-m", gitDescription, datasetOutputLocation])
-    else:
-        print("Done! Now commit to git")
 
-
-def parser():
+def cli():
     parser = argparse.ArgumentParser(description="Generate the dataset for the web app")
     parser.add_argument(
-        "-a", "--api_key", help="Your API key from the Youtube API", default=False
-    )
-    parser.add_argument(
-        "--output_file", "-o", help="The output path", default="dataset.json"
-    )
-    parser.add_argument(
-        "-g",
-        "--git-commit",
-        help="Automatically commit the dataset file to git (uses git cli)",
+        "-c",
+        "--yt_channel_id",
+        help="Youtube Channel ID to parse (e.g. https://www.ytmaxer.com/tools/channel-id )",
         default=False,
-        type=bool,
+        required=True,
+    )
+    parser.add_argument(
+        "-a",
+        "--yt_api_key",
+        help="Your API key from the Youtube API. Optional set environment variable YT_CRAWL_YT_API_KEY",
+        default=os.getenv("YT_CRAWL_YT_API_KEY"),
+        required=False,
+    )
+    parser.add_argument(
+        "-o",
+        "--output_file",
+        help="The output path of JSON file (e.g.dataset.json)",
+        default="dataset.json",
     )
     args = parser.parse_args()
-    if not args.api_key:
-        args.api_key = open("yt.secret").read()
 
-    run(args.api_key, args.output_file)
+    if not args.yt_api_key:
+        logger.error("No API key (-a) provided")
+
+    run(args.yt_channel_id, args.yt_api_key, args.output_file)
 
 
 if __name__ == "__main__":
-    parser()
+    cli()
