@@ -18,7 +18,7 @@ def cli():
         "-c",
         "--yt_channel_id",
         required=True,
-        help="YouTube Channel ID to parse",
+        help="YouTube Channel ID to parse (e.g. https://www.ytmaxer.com/tools/channel-id )",
     )
     parser.add_argument(
         "-a",

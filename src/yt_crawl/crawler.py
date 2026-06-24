@@ -38,28 +38,38 @@ def run(channel_id: str, api_key: str, output_file: str):
 
     logger.info("Processing video descriptions")
     for video in output:
+        video_id = video[1]
         title = video[2]
         description = video[3].split("\n")
 
         logger.info("Processing video: %r", title)
 
+        found_timestamp = False
         for line in description:
             parsed = parse_timestamp(line)
             if not parsed:
                 logger.debug("Skipped line (no time prefix): %r", line)
                 continue
 
+            found_timestamp = True
             hours, minutes, seconds, newline = parsed
 
             entry = SearchEntry(
                 videoTitle=title,
-                videoId=video[1],
+                videoId=video_id,
                 timestamp=Timestamp(hours=hours, minutes=minutes, seconds=seconds),
                 tag="",
                 line=newline,
             ).as_json_serializable()
 
             videos.append(entry)
+
+        if not found_timestamp:
+            logger.warning(
+                "No timestamp found in description for video: %r [%s]",
+                title,
+                video_id,
+            )
 
     logger.info("Serializing data to JSON format")
     dataset = json.dumps(videos)
