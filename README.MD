@@ -1,13 +1,7 @@
 # yt-channel-chapter-crawler
 
 ## TODO
-- [] Remove website elements
-- [] Remove non youtube integrations
-- [] Refactor `yt.secret` to OS environment variable
-- [] Add formatter, linter, unit tests
-- [] Enhance for live video streams (VODs)
 - [] If no timestamps, check for Key moments
-- [] Refactor as pip package
 
 ## Search Utility
 
