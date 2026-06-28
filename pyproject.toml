@@ -1,0 +1,41 @@
+[tool.black]
+line-length = 88
+target-version = ["py314"]
+exclude = '''
+/(
+  \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yt-ccc"
+version = "0.1.0"
+description = "Crawl YouTube channel descriptions and extract timestamped entries"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = ["requests"]
+
+[project.scripts]
+yt-ccc = "yt_ccc.cli:cli"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+

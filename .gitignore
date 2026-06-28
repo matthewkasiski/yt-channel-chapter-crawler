@@ -1,1 +1,15 @@
 yt.secret
+
+# IDE
+.idea/
+.venv/
+
+dataset.json
+
+# Test
+**/*.egg-info/*
+**/.coverage
+
+# Build
+*.tar.gz
+*.whl
