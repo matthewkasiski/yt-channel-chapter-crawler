@@ -12,13 +12,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def cli():
+def build_parser():
     parser = argparse.ArgumentParser(description="Generate the dataset for the web app")
     parser.add_argument(
         "-c",
         "--yt_channel_id",
         required=True,
-        help="YouTube Channel ID to parse (e.g. https://www.ytmaxer.com/tools/channel-id )",
+        action="append",
+        help="YouTube Channel ID to parse (can be provided multiple times)",
     )
     parser.add_argument(
         "-a",
@@ -33,8 +34,11 @@ def cli():
         default="dataset.json",
         help="Output JSON file path",
     )
+    return parser
 
-    args = parser.parse_args()
+
+def cli():
+    args = build_parser().parse_args()
 
     if not args.yt_api_key:
         logger.error("No API key (-a) provided")

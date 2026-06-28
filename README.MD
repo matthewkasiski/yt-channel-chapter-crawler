@@ -11,17 +11,6 @@
 
 ## Search Utility
 
-### Updating the dataset
-
-To update the dataset do the following (assuming you have git cli and python3)
-
-```sh
-git clone https://github.com/IppSec/ippsec.github.io.git ippsec
-# Or you can use the SSH link if you prefer
-cd ippsec
-python yt_crawl.py -g [put your api key here]]
-git push
-```
 
 ### Compiling SCSS
 
@@ -33,3 +22,4 @@ Install this extension and use it to update the stylesheets, note that the `.vsc
 
 - YouTube Data API Overview: https://developers.google.com/youtube/v3/getting-started
 - Create your own API Key: https://console.developers.google.com/apis/credentials
+- Find a channel id: https://www.ytmaxer.com/tools/channel-id

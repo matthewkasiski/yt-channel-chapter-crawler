@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from yt_crawl.youtube_api import get_upload_playlist_id, get_videos_in_channel
 

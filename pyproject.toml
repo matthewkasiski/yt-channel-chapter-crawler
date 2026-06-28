@@ -35,5 +35,7 @@ where = ["src"]
 dev = [
     "black",
     "pytest",
+    "pytest-cov",
+    "ruff",
 ]
 

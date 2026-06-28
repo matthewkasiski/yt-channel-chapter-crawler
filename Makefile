@@ -1,4 +1,4 @@
-.PHONY: install install-dev test format lint clean uninstall
+.PHONY: install install-dev test format lint clean uninstall coverage
 
 install:
 	pip install -e .
@@ -11,12 +11,15 @@ format:
 
 lint:
 	black --check src tests
+	ruff check src tests
 
-test: install-dev format lint
-	pytest
+coverage:
+	pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
+test: install-dev format lint coverage
 
 uninstall:
 	pip uninstall -y yt-crawl
 
 clean: uninstall
-	rm -rf build dist *.egg-info .pytest_cache .ruff_cache .mypy_cache __pycache__ src/**/__pycache__ tests/**/__pycache__
+	rm -rf build dist src/*.egg-info .pytest_cache .ruff_cache .mypy_cache __pycache__ src/**/__pycache__ tests/**/__pycache__ .coverage
