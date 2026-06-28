@@ -18,8 +18,12 @@ coverage:
 
 test: install-dev format lint coverage
 
+build:
+	pip install build
+	python -m build
+
 uninstall:
-	pip uninstall -y yt-crawl
+	pip uninstall -y yt-ccc
 
 clean: uninstall
 	rm -rf build dist src/*.egg-info .pytest_cache .ruff_cache .mypy_cache __pycache__ src/**/__pycache__ tests/**/__pycache__ .coverage

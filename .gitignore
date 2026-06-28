@@ -5,3 +5,11 @@ yt.secret
 .venv/
 
 dataset.json
+
+# Test
+**/*.egg-info/*
+**/.coverage
+
+# Build
+*.tar.gz
+*.whl

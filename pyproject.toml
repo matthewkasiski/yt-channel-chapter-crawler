@@ -15,15 +15,15 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "yt-crawl"
+name = "yt-ccc"
 version = "0.1.0"
 description = "Crawl YouTube channel descriptions and extract timestamped entries"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.14"
 dependencies = ["requests"]
 
 [project.scripts]
-yt-crawl = "yt_crawl.cli:cli"
+yt-ccc = "yt_ccc.cli:cli"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

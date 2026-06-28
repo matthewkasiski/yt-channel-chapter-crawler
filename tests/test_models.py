@@ -1,4 +1,4 @@
-from yt_crawl.models import SearchEntry, Timestamp
+from yt_ccc.models import SearchEntry, Timestamp
 
 
 def test_search_entry_serializes():

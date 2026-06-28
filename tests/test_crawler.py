@@ -1,7 +1,7 @@
 import json
 from unittest.mock import mock_open, patch
 
-from yt_crawl.crawler import parse_timestamp, run
+from yt_ccc.crawler import parse_timestamp, run
 
 
 def test_parse_timestamp_mm_ss():
@@ -23,7 +23,7 @@ def test_run_extracts_timestamped_lines_and_writes_json():
     ]
 
     with (
-        patch("yt_crawl.crawler.get_videos_in_channel", return_value=videos),
+        patch("yt_ccc.crawler.get_videos_in_channel", return_value=videos),
         patch("builtins.open", mock_open()) as m,
     ):
         run(["channel123"], "api123", "out.json")
@@ -70,7 +70,7 @@ def test_run_processes_multiple_channels():
 
     with (
         patch(
-            "yt_crawl.crawler.get_videos_in_channel",
+            "yt_ccc.crawler.get_videos_in_channel",
             side_effect=[videos_channel_1, videos_channel_2],
         ) as mock_get,
         patch("builtins.open", mock_open()) as m,
@@ -114,9 +114,9 @@ def test_run_warns_when_no_timestamp_found():
     ]
 
     with (
-        patch("yt_crawl.crawler.get_videos_in_channel", return_value=videos),
+        patch("yt_ccc.crawler.get_videos_in_channel", return_value=videos),
         patch("builtins.open", mock_open()),
-        patch("yt_crawl.crawler.logger.warning") as mock_warning,
+        patch("yt_ccc.crawler.logger.warning") as mock_warning,
     ):
         run(["channel123"], "api123", "out.json")
 

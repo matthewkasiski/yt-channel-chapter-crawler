@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from yt_crawl.youtube_api import get_upload_playlist_id, get_videos_in_channel
+from yt_ccc.youtube_api import get_upload_playlist_id, get_videos_in_channel
 
 
 def test_get_upload_playlist_id():
@@ -10,7 +10,7 @@ def test_get_upload_playlist_id():
         ]
     }
 
-    with patch("yt_crawl.youtube_api._get", return_value=response):
+    with patch("yt_ccc.youtube_api._get", return_value=response):
         assert get_upload_playlist_id("api123", "channel123") == "UPLOADS_PLAYLIST_ID"
 
 
@@ -42,8 +42,8 @@ def test_get_videos_in_channel_paginates():
     }
 
     with (
-        patch("yt_crawl.youtube_api.get_upload_playlist_id", return_value="UPLOADS"),
-        patch("yt_crawl.youtube_api._get", side_effect=[first, second]),
+        patch("yt_ccc.youtube_api.get_upload_playlist_id", return_value="UPLOADS"),
+        patch("yt_ccc.youtube_api._get", side_effect=[first, second]),
     ):
         videos = get_videos_in_channel("api123", "channel123")
 

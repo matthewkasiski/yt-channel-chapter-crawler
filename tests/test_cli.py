@@ -1,13 +1,13 @@
 import pytest
 from unittest.mock import patch
 
-from yt_crawl.cli import cli
+from yt_ccc.cli import cli
 
 
 def test_cli_accepts_multiple_channel_ids():
     with (
-        patch("yt_crawl.cli.run") as mock_run,
-        patch("yt_crawl.cli.os.getenv", return_value="api123"),
+        patch("yt_ccc.cli.run") as mock_run,
+        patch("yt_ccc.cli.os.getenv", return_value="api123"),
         patch("sys.argv", ["prog", "-c", "channel123", "-c", "channel456"]),
     ):
         cli()
@@ -21,7 +21,7 @@ def test_cli_accepts_multiple_channel_ids():
 
 def test_cli_uses_output_file_and_api_key():
     with (
-        patch("yt_crawl.cli.run") as mock_run,
+        patch("yt_ccc.cli.run") as mock_run,
         patch(
             "sys.argv", ["prog", "-c", "channel123", "-a", "api123", "-o", "out.json"]
         ),
@@ -37,8 +37,8 @@ def test_cli_uses_output_file_and_api_key():
 
 def test_cli_exits_when_api_key_missing():
     with (
-        patch("yt_crawl.cli.run") as mock_run,
-        patch("yt_crawl.cli.os.getenv", return_value=None),
+        patch("yt_ccc.cli.run") as mock_run,
+        patch("yt_ccc.cli.os.getenv", return_value=None),
         patch("sys.argv", ["prog", "-c", "channel123"]),
     ):
         with pytest.raises(SystemExit) as exc:
