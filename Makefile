@@ -26,4 +26,4 @@ uninstall:
 	pip uninstall -y yt-ccc
 
 clean: uninstall
-	rm -rf build dist src/*.egg-info .pytest_cache .ruff_cache .mypy_cache __pycache__ src/**/__pycache__ tests/**/__pycache__ .coverage
+	rm -rf build dist src/*.egg-info .pytest_cache .ruff_cache .mypy_cache __pycache__ src/**/__pycache__ tests/**/__pycache__ tests/__pycache__ .coverage
